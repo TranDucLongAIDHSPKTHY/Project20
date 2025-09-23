@@ -9,6 +9,7 @@ Lưu ý: tích chọn Add Python to PATH khi cài đặt.
 ### 2. Cài đặt các thư viện cần thiết
 Bước 1: Mở terminal và chạy lệnh:
 Copy lệnh: pip install pandas numpy matplotlib seaborn scikit-surprise streamlit
+Bước 2: Nếu báo lỗi C++ : tải https://visualstudio.microsoft.com/visual-cpp-build-tools/ và cài hết 4 mục đầu sau đó Install và reaset lại máy. Khởi động lại máy và tiếp tục lại bước 2.
 
 ### 3. Chạy code chính
 Bước 1: Mở file code/RS_CollaborativeFiltering.ipynb và chạy. Thời gian chạy khoảng 10-15 phút.
