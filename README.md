@@ -1,7 +1,7 @@
 # Hệ thống gợi ý phim đơn giản
 Sử dụng lọc cộng tác: KNN với 3 độ đo similarity là cosine , msd, pearson.
 ## Hướng dẫn chạy:
-### 1. Cài đặt Python 3.10.x
+### 1. Cài đặt Python 3.10.0
 Bước 1: Tải Python tại: https://www.python.org/downloads/release/python-3100/
 Bước 2: Kéo xuống phần Files, chọn Windows installer (64-bit), tải về và mở để cài đặt.
 Lưu ý: tích chọn Add Python to PATH khi cài đặt.
