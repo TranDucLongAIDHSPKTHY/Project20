@@ -86,7 +86,7 @@ class MovieRecommender:
 
     # ----------------- PREPARE DATA FOR SURPRISE -----------------
     def prepare_surprise_data(self, verbose=True):
-        """Chuyển dữ liệu sang định dạng của Surprise và chia train/test"""
+        """Chuyển dữ liệu sang định dạng của Surprise và chia tập train/test"""
         reader = Reader(rating_scale=(1,5))
         self.data = Dataset.load_from_df(self.ratings[['user_id','movie_id','rating']], reader)
         self.trainset, self.testset = train_test_split(self.data, test_size=0.2, random_state=42)
@@ -100,7 +100,7 @@ class MovieRecommender:
             print(f"Số mẫu test: {n_test} ({n_test/total*100:.2f}%)")
 
     # ----------------- METRICS -----------------
-    def precision_recall_f1_at_k(self, predictions, k, threshold=3.5):
+    def precision_recall_f1_at_k(self, predictions, k, threshold=3.5): # Tại sao lại chọn ngưỡng rating này? dựa vào Rating trung bình: 3.58
         """
         Tính Precision, Recall, F1-score cho từng user rồi trung bình
         Dùng threshold=3.5 để xác định rating "positive"
@@ -129,9 +129,10 @@ class MovieRecommender:
     def train_knn(self, verbose=True):
         """
         Huấn luyện KNN trên các similarity khác nhau
-        - similarity: cosine, msd, pearson
+        - similarity: cosine, msd, pearson # tìm những tài liệu / bài báo về thuật toán KNN có sử dụng 1 trong 3 dộ đo ( tìm 3 bài báo) .. dựa vào độ phổ biến của 3 độ đo 
         - lưu mô hình
-        - tính RMSE train/test và Precision/Recall/F1
+        - tính RMSE train/test và Precision/Recall/F1 
+        # Phân biệt 2 loại độ đo: độ đo chất lượng & độ đo sai số ( RMSE )
         """
         similarities = ['cosine','msd','pearson']
         results = []
@@ -164,6 +165,8 @@ class MovieRecommender:
 
         self.results_df = pd.DataFrame(results)
         return self.results_df
+    # Tập trung 4 hàm : preprocess_data, prepare_surprise_data, train_knn, precision_recall_f1_at_k
+
 
     # ----------------- SAVE/LOAD MODEL -----------------
     def save_model(self, model, filename):
@@ -179,15 +182,17 @@ class MovieRecommender:
             with open(filepath,'rb') as f:
                 return pickle.load(f)
         return None
-
+    
+    
+    # Câu hỏi: Làm sao để hệ thống gợi ý cho user chưa xem phim đó. ( tức là đưa ra gợi ý những phim mà người dùng chưa xem)
     # ----------------- COMPUTE AND SAVE RECOMMENDATIONS FOR ALL USERS -----------------
-    def compute_and_save_all_recommendations(self, model_type='knn_msd', n_recommendations=5, verbose=True):
+    def compute_and_save_all_recommendations(self, model_type='knn_msd', n_recommendations=10, verbose=True): # model_type = 'knn_msd' là giá trị mặc định, để class biết mô hình nào dùng để tính gợi ý
         """
         Tính và lưu gợi ý cho tất cả user để đảm bảo nhất quán với web.
         Lưu vào file recommendations_all_users_{sim}_k10.pkl
         """
         if verbose:
-            print(f"\n=== TÍNH VÀ LƯU GỢI Ý CHO TẤT CẢ USER VỚI {model_type} ===")
+            print(f"\n=== TÍNH VÀ LƯU GỢI Ý CHO USER VỚI {model_type} ===")
         
         all_users = sorted(self.ratings['user_id'].unique())
         all_recs = {}
@@ -232,7 +237,7 @@ class MovieRecommender:
         return predictions[:n_recommendations]
 
     # ----------------- GET RECOMMENDATIONS (LOAD FROM SAVED FILE) -----------------
-    def get_top_n_recommendations(self, user_id, model_type='knn_msd', n_recommendations=5, verbose=True):
+    def get_top_n_recommendations(self, user_id, model_type='knn_msd', n_recommendations=5, verbose=True): # model_type = 'knn_msd' là giá trị mặc định, để class biết mô hình nào dùng để tính gợi ý
         """
         Load gợi ý đã lưu từ file để đảm bảo nhất quán với web.
         Nếu chưa load, load trước.
@@ -256,9 +261,10 @@ class MovieRecommender:
         recommendations = recommendations[:n_recommendations]
         
         if verbose:
-            print(f"\n=== TOP {n_recommendations} RECOMMENDATIONS FOR USER {user_id} (TỪ FILE LƯU) ===")
-            for i,(mid,title,est) in enumerate(recommendations,1):
-                print(f"{i}. {title} | Predicted Rating: {est:.2f}")
+            print(f"\n=== TOP {n_recommendations} RECOMMENDATIONS FOR USER {user_id} ===")
+            for i,(title) in enumerate(recommendations,1):
+                #print(f"{i}. {title} | Predicted Rating: {est:.2f}")
+                print(f"{i}. {title}")
         
         return recommendations
 
@@ -305,7 +311,7 @@ class MovieRecommender:
             plt.bar(np.arange(len(x)) + width/2, self.results_df['RMSE_test'], width, label='RMSE Test', color=palette[1])
             plt.xticks(np.arange(len(x)), x)
             plt.ylabel("RMSE")
-            plt.title("So sánh RMSE Train/Test theo similarity")
+            plt.title("So sánh RMSE Train/Test")
             plt.legend()
         plt.show()
 
